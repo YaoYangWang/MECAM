@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 =======
 # MECAM：Multimodal Emotion Analysis Method Based on Contrastive Learning and Talking-Heads Attention Mechanism
 
