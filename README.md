@@ -1,4 +1,3 @@
-=======
 # MECAM：Multimodal Emotion Analysis Method Based on Contrastive Learning and Talking-Heads Attention Mechanism
 
 This is the open source code for paper: MECAM：Multimodal Emotion Analysis Method Based on Contrastive Learning and Talking-Heads Attention Mechanism
