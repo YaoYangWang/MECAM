@@ -17,8 +17,12 @@ class IntraModalityCL(nn.Module):
         # 维度对齐层
         self.align_dim = nn.Linear(video_dim, text_dim)
 
-    def compute_loss(self, logits, mask):
-        return -torch.log((F.softmax(logits, dim=1) * mask).sum(1))
+    def compute_loss(self, logits, mask, weights=None):
+        loss = -torch.log((F.softmax(logits, dim=1) * mask).sum(1))
+        if weights is not None:
+            loss = loss * weights  # 加权
+        return loss
+
 
     def _get_positive_mask(self, batch_size):
         diag = np.eye(batch_size)
