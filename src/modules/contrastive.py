@@ -1,18 +1,19 @@
 from torch import nn
 import torch
 import torch.nn.functional as F
-import time 
 import numpy as np
 
 class IntraModalityCL(nn.Module):
 
-    def __init__(self, video_dim, text_dim, temperature=0.03, negative_weight=0.8, logger=None):
+    def __init__(self, video_dim, text_dim, temperature=0.03, threshold=0.8, logger=None):
         super().__init__()
         self.logit_scale = nn.Parameter(torch.ones([]))
         self.criterion = torch.nn.CrossEntropyLoss(reduction='none') 
         self.temperature = temperature 
         self.logger = logger
-        self.negative_w = negative_weight  # Weight of negative samples logits.
+        
+        # 设定相似度阈值，过滤掉高余弦相关负样本
+        self.threshold = threshold
         
         # 维度对齐层
         self.align_dim = nn.Linear(video_dim, text_dim)
@@ -23,10 +24,9 @@ class IntraModalityCL(nn.Module):
             loss = loss * weights  # 加权
         return loss
 
-
     def _get_positive_mask(self, batch_size):
         diag = np.eye(batch_size)
-        mask = torch.from_numpy((diag))
+        mask = torch.from_numpy(diag)
         mask = (1 - mask)
         return mask.cuda(non_blocking=True)
 
@@ -51,6 +51,11 @@ class IntraModalityCL(nn.Module):
         negatives_vid = logits_clstr_vid * positive_mask
         negatives_txt = logits_clstr_txt * positive_mask
 
+        # 过滤高余弦相似度负样本
+        negatives_vid = torch.where(negatives_vid < self.threshold, negatives_vid, torch.zeros_like(negatives_vid))
+        negatives_txt = torch.where(negatives_txt < self.threshold, negatives_txt, torch.zeros_like(negatives_txt))
+
+        # 拼接正样本和负样本
         vid_logits = torch.cat([self.negative_w * negatives_vid, self.negative_w * negatives_vid], dim=1)
         txt_logits = torch.cat([self.negative_w * negatives_txt, self.negative_w * negatives_txt], dim=1)
 
