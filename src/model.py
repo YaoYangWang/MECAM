@@ -62,15 +62,15 @@ class MECAM(nn.Module):
         dim_sum = hp.d_aout + hp.d_vout + hp.d_tout
 
 
-        self.loss_cross_clr_tv = IntraModalityCL(
+        self.loss_intra_clr_tv = IntraModalityCL(
             text_dim = hp.d_tout,
             video_dim = hp.d_vout
         )
-        self.loss_cross_clr_ta = IntraModalityCL(
+        self.loss_intra_clr_ta = IntraModalityCL(
             text_dim = hp.d_tout,
             video_dim = hp.d_aout
         )
-        self.loss_cross_clr_vt = IntraModalityCL(
+        self.loss_intra_clr_vt = IntraModalityCL(
             text_dim = hp.d_vout,
             video_dim = hp.d_tout
         )
@@ -112,15 +112,6 @@ class MECAM(nn.Module):
         text = enc_word[:,0,:] # (batch_size, emb_size)
         acoustic = self.acoustic_enc(acoustic, a_len)
         visual = self.visual_enc(visual, v_len)
-        # -----------------------------------------可视化-----------------------------------
-        # acoustic = acoustic.unsqueeze(0)
-        # visual = visual.unsqueeze(0)
-        # linear = nn.Linear(in_features=text.shape[1], out_features=128)
-        # self.visualize_tensor(linear(text).cpu())
-        # self.visualize_tensor(acoustic.cpu())
-        # self.visualize_tensor(visual.cpu())
-        # -----------------------------------------可视化-----------------------------------
-        # print(text.shape,acoustic.shape,visual.shape)
         if y is not None:
             lld_tv, tv_pn, H_tv = self.mi_tv(x=text, y=visual, labels=y, mem=mem['tv'])
             lld_ta, ta_pn, H_ta = self.mi_ta(x=text, y=acoustic, labels=y, mem=mem['ta'])
@@ -143,9 +134,7 @@ class MECAM(nn.Module):
         visual = model2(text, visual)
         # text = acoustic + visual
         fusion, preds = self.fusion_prj(torch.cat([text, acoustic, visual], dim=1))
-        
-        # NCE 换为模态内cl
-        loss_cc = self.loss_cross_clr_tv(visual,text) + self.loss_cross_clr_ta(acoustic,text)
+        loss_cc = self.loss_intra_clr_tv(visual,text,labels=y) + self.loss_intra_clr_ta(acoustic,text,labels=y)
         nce = 0.2 * loss_cc
 
         pn_dic = {'tv':tv_pn, 'ta':ta_pn, 'va': va_pn if self.add_va else None}
