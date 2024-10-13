@@ -1,17 +1,15 @@
-# Filtering Negative Information for Multimodal Emotion Recognition
+# Contrastive-Based Removal of Negative Information in Multimodal Emotion Analysis
 
-This is the open source code for paper: Filtering Negative Information for Multimodal Emotion Recognition
+This is the open source code for paper: Contrastive-Based Removal of Negative Information in Multimodal Emotion Analysis
 
 ## Intro
->Multimodal emotion recognition stands at the forefront of human-computer interaction technology, significantly bridging the communication gap between humans and machines by accurately identifying human emotions. This technology leverages multiple inputs such as facial expressions, speech, text, and physiological signals to gain an in-depth understanding of emotional states. However, existing methods often focus on synchronizing these multimodal data to enhance accuracy while overlooking the critical role of negative information. Negative information typically refers to noise in the data or inconsistencies with the primary emotion labels, such as discrepancies in emotional expressions across different modalities and noisy data. This information can significantly impact the effectiveness of emotion recognition systems. To address this issue, we propose an innovative method inspired by the concept of impurity removal in chemistry. This method is based on contrastive learning and aims to eliminate negative information in speech, text, and image data. Furthermore, it integrates the filtered features for emotion recognition using a multi-head attention mechanism. Specifically, we apply contrastive learning in the feature space of each modality to selectively filter out negative information. Subsequently, we use a multi-head attention mechanism to dynamically focus on relevant features across modalities, ensuring that the integration process is sensitive to subtle differences in emotional expression. Experiments conducted on the CMU-MOSI and CMU-MOSEI datasets validate our approach, demonstrating that our method significantly outperforms existing methods in emotion recognition tasks.
-
+>Multimodal sentiment analysis bridges the communication gap between humans and machines by accurately recognizing human emotions. However, existing approaches often focus on synchronizing multimodal data to enhance accuracy, overlooking the critical role of negative information. Negative information refers to noise or corrupted data commonly found in real-world scenarios, such as missing text, shuffled word order, frame drops, or blurring in videos. These issues can significantly compromise the effectiveness of sentiment analysis systems. To address this challenge, we propose a novel method based on contrastive learning for the removal of non-relevant features within single modalities, aiming to eliminate negative information in speech, text, and image data. Additionally, we have designed an enhanced multi-head attention mechanism that integrates the cleansed features into a unified representation for emotion analysis. Experimental evaluations on the CMU-MOSI and CMU-MOSEI datasets demonstrate that our method significantly outperforms existing approaches in sentiment analysis tasks. This method not only improves accuracy but also ensures the system’s robustness against diverse noisy data, including corrupted and inconsistent multimodal information often encountered in real-world settings
 ![](images/1.png)
-
 ## Usage
 
 1. As mentioned in our paper, you need to download the CMU-MOSI and CMU-MOSEI dataset. Then place them under the folder `MECAM/datasets`
 
-2. Environment 
+2. Environment
 ```
 python 3.8
 torch 1.7.1
@@ -21,8 +19,41 @@ tensorflow-estimator 2.3.0
 tensorflow-gpu 2.3.1
 transformers 4.0.0
 ```
+3. Hardware Settings
+\begin{table}[h]
+\centering
+\caption{Experimental Setup}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Hardware Parameters} & \textbf{Values} \\ \hline
+CPU                          & I9-10980XE 3.00 GHz  \\ \hline
+GPU                          & RTX 3090Ti (Single Card)  \\ \hline
+Cores                        & 18  \\ \hline
+Memory                       & 128GB  \\ \hline
+Logical Processors            & 36  \\ \hline
+Operating System              & Ubuntu 22.04  \\ \hline
+\textbf{Partial Model Training Parameters} & \textbf{Values} \\ \hline
+Python Version               & 3.8  \\ \hline
+CUDA Version                 & 11.7  \\ \hline
+Pre-trained Language Model    & bert-base-uncased  \\ \hline
+Alpha                        & 0.2/0.1  \\ \hline
+Beta                         & 0.05/0.05  \\ \hline
+Visual Size (Hidden/Output)   & 16/32  \\ \hline
+Audio Size (Hidden/Output)    & 16/16  \\ \hline
+Batch Size                   & 32/64  \\ \hline
+Optimizer                    & adam  \\ \hline
+Dropout Audio                & 0.1/0.01  \\ \hline
+Dropout Visual               & 0.1/0.1  \\ \hline
+Dropout Text                 & 0.1/0.1  \\ \hline
+Learning Rate                & 5e-4  \\ \hline
+Weight Decay                 & 1e-4  \\ \hline
+Early Stopping               & 20  \\ \hline
+Number of Epochs             & 40  \\ \hline
+Seed                         & 1111  \\ \hline
+\end{tabular}
+\end{table}
 
-3. Start training
+4. Start training
 ```
 python main.py
 ```
