@@ -134,7 +134,13 @@ class MECAM(nn.Module):
         visual = model2(text, visual)
         # text = acoustic + visual
         fusion, preds = self.fusion_prj(torch.cat([text, acoustic, visual], dim=1))
-        loss_cc = self.loss_intra_clr_tv(visual,text,labels=y) + self.loss_intra_clr_ta(acoustic,text,labels=y)
+        if y is not None:
+            # Pass labels to loss functions
+            # print("cur is not None")
+            loss_cc = self.loss_cross_clr_vt(text, visual, video_labels=y, text_labels=y) + self.loss_cross_clr_at(text, acoustic, video_labels=y, text_labels=y)
+        else:
+            loss_cc = self.loss_cross_clr_vt(text, visual, None,None) + self.loss_cross_clr_at(text, acoustic,None,None)
+
         nce = 0.2 * loss_cc
 
         pn_dic = {'tv':tv_pn, 'ta':ta_pn, 'va': va_pn if self.add_va else None}
